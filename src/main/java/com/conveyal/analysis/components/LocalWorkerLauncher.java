@@ -44,7 +44,7 @@ public class LocalWorkerLauncher implements WorkerLauncher {
         workerConfig.setProperty("work-offline", "true");
         workerConfig.setProperty("auto-shutdown", "false");
         workerConfig.setProperty("broker-address", "localhost");
-        workerConfig.setProperty("broker-port", Integer.toString(config.serverPort()));
+        workerConfig.setProperty("broker-port", Integer.toString(config.serverPort())); //7070이다.
         workerConfig.setProperty("cache-dir", config.localCacheDirectory());
 
         // From a throughput perspective there is no point in running more than one worker locally, since each worker

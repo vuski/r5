@@ -59,6 +59,20 @@ import static com.conveyal.r5.common.Util.notNullOrEmpty;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
+ * 이것은 작업자들이 상태를 보고하고 작업을 요청하는 연결을 처리하기 위한 Spark HTTP 컨트롤러입니다.
+ * 또한 단일 지점 요청에 대한 프론트엔드로부터의 연결도 처리합니다.
+ * 이 API는 분석 백엔드 외부에서 실행되던 별도의 브로커 프로세스를 대체합니다.
+ * 핵심 작업 큐잉 및 분배 로직은 Broker 객체의 인스턴스에 의해 제공됩니다.
+ * 현재 클래스는 해당 기능을 HTTP API로 감싸야 합니다.
+ *
+ * 작업자들은 이전에는 롱폴링을 사용하여 연결을 열어 두었으며, 이를 통해 작업이 큐에 추가되는 즉시 작업을 즉시 받을 수 있었습니다.
+ * 하지만 이것은 열려 있는 연결을 일시 중지하고 연결이 닫힐 때 그것들을 정리해야 하므로 많은 복잡성을 추가합니다.
+ * 이제 작업자들은 단기 폴링을 사용하는데, 이것은 간단하고 표준적인 HTTP API를 가능하게 합니다.
+ * 우리는 작업자들이 지역 작업을 소비하기 시작하는 데 몇 초가 걸리는 것을 신경 쓰지 않습니다.
+ *
+ * 단일 지점(고우선순위) 작업은 대신 프록시와 같은 푸시 접근 방식으로 처리됩니다.
+ */
+/**
  * This is a Spark HTTP controller to handle connections from workers reporting their status and requesting work.
  * It also handles connections from the front end for single-point requests.
  * This API replaces what used to be a separate broker process running outside the Analysis backend.
@@ -114,6 +128,21 @@ public class BrokerController implements HttpController {
         sparkService.get("/api/workers", this::getAllWorkers);
         sparkService.post("/api/analysis", this::singlePoint); // TODO rename HTTP path to "single" or something
     }
+
+
+
+    /**
+     * 단일 출발지 요청을 위한 핸들러입니다. 이 엔드포인트는 작업자가 아닌 프론트엔드에 의해 연락되며,
+     * 즉각적인 처리를 위해 적절한 작업자에게 단일 지점 작업을 푸시하도록 합니다.
+     * 이러한 요청은 사용자가 웹 UI에서 출발 지점을 이동하는 대화형 세션에서 주로 발생합니다.
+     * 지역 작업에서 작업자가 큐에서 작업을 가져가는 것과 달리, 단일 지점 작업은 프록시나 로드 밸런서처럼 작동합니다.
+     * Spark(Jetty) 핸들러 내에서 작업자에게 연락하기 위해 Apache HTTPComponents 클라이언트를 사용하고 있음을 유의하세요.
+     * 우리는 Jetty HTTP 클라이언트를 사용할 수 있습니다(이것은 요청과 응답 헤더를 작업자에게 전달할 때 정확히 복제하는 것을 용이하게 할 수 있지만,
+     * Spark가 내부 Jetty 요청/응답 객체를 감싸고 있기 때문에 많은 이득을 얻지 못합니다.
+     * 우리는 언젠가 Spark를 없앨 때 Jetty HTTP 클라이언트로 전환할 것입니다.
+     * 여기서 우리가 하고 있는 것에는 너무 간단할 수 있는 Jetty 프록시 모듈도 있습니다.
+     * @return 작업자가 응답하는 것, 일반적으로 입력 스트림입니다. Spark 직렬화 체인은 스트림을 적절히 처리할 수 있습니다.
+     */
 
     /**
      * Handler for single-origin requests. This endpoint is contacted by the frontend rather than the worker, and

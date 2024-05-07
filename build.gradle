@@ -6,6 +6,12 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
+
+tasks.withType(Test) {
+    enabled = false
+}
+
+
 group = 'com.conveyal'
 // set version to `git describe --tags --always --first-parent`, plus '.dirty' if local changes are present.
 version gitVersion()

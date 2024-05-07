@@ -4,7 +4,7 @@
 # docker build . --build-arg r5version=$(cat build/version.txt)
 # We could instead run the Gradle build and/or fetch version information 
 # using run actions within the Dockerfile
-FROM openjdk:11
+FROM openjdk:21
 ARG r5version
 ENV R5_VERSION=$r5version
 ENV JVM_HEAP_GB=2

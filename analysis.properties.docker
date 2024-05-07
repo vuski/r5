@@ -15,3 +15,7 @@ local-cache=cache
 light-threads=3
 heavy-threads=3
 max-workers=8
+
+# application.properties
+access-control-allow-origin=*
+immediate-shutdown=false

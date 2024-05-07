@@ -44,8 +44,8 @@ public class ConfigBase {
         // Overwrite properties from config file with environment variables and system properties.
         // This could also be done with the Properties constructor that specifies defaults, but by manually
         // overwriting items we are able to log these potentially confusing changes to configuration.
-        setPropertiesFromMap(System.getenv(), "environment variable");
-        setPropertiesFromMap(System.getProperties(), "system properties");
+        setPropertiesFromMap(System.getenv(), "environment variable"); //시스템 환경 변수
+        setPropertiesFromMap(System.getProperties(), "system properties"); //자바 환경 변수
     }
 
     /** Static convenience method to uniformly load files into properties and catch errors. */

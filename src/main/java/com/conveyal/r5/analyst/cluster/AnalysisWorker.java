@@ -188,7 +188,7 @@ public class AnalysisWorker implements Component {
                 LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
 
         this.config = config;
-        this.brokerBaseUrl = String.format("http://%s:%s/internal", config.brokerAddress(), config.brokerPort());
+        this.brokerBaseUrl = String.format("http://%s:%s/internal", config.brokerAddress(), config.brokerPort()); //7070임
 
         // Set the initial graph affinity of this worker (which will be null in local operation).
         // We don't actually build / load / process the TransportNetwork until we receive the first task.

@@ -73,6 +73,11 @@ public class HttpApi implements Component {
         }
     }
 
+    //웹 서비스의 전반적인 내용을 설정한다.
+    //before는 모든 요청에 대해서 요청이 특정 핸들러에 도달하기 이전에 실행됨
+    //인증 토큰을 검사하는 것과 같은 일들
+    //after는 모든 응답에 대해 특정 http 헤더를 포함시키거나
+    //응답 데이터를 수정하거나 여러가지 작업을 할 수 있음
     private spark.Service configureSparkService () {
         // Set up Spark, the HTTP framework wrapping Jetty, including the port on which it will listen for connections.
         LOG.info("Analysis server will listen for HTTP connections on port {}.", config.serverPort());
